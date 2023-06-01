@@ -1,0 +1,130 @@
+---
+title: "Matching_loci_prob"
+author: "Eric Witte"
+date: "2023-05-08"
+output: html_document
+---
+
+#This script runs a simulation for finding common loci under selection across species matched to the same reference genome
+
+#Compare this to matching loci found through methods ave + 3sd
+
+rm(list=ls()) #clear environment
+
+##load packages##
+library(ggplot2)
+
+library(dplyr)
+
+##ELA##
+
+path_to_file_ELA <- "/Users/ericwitte/Desktop/ELA_Project/ELA_3_21/ELA_3_21_ALL_LOCI/populations.phistats.tsv" #set path to file
+
+ELA_loci <- read.table(file = path_to_file_ELA, sep = '\t', header = FALSE) #read tsv file
+
+head(ELA_loci) #check file
+
+ELA_loci <- ELA_loci[,1:4] #remove columns 5:12
+
+colnames(ELA_loci) <- c("RAD", "SCAF", "BP", "phi") #rename variables
+
+head(ELA_loci) #check file
+
+min(ELA_loci$phi, na.rm=TRUE) #ensure minimum phi value is set to zero
+
+ELA_loci$phi <- ifelse(ELA_loci$phi<=0, 0, ELA_loci$phi) #set values less than 0 to 0
+
+mean_phi_ELA <- mean(ELA_loci$phi, na.rm=TRUE) # calculate mean phi value
+
+sd_phi_ELA <- sd(ELA_loci$phi, na.rm=TRUE) # calculate sd phi value
+
+thresh_phi_ELA <- mean_phi_ELA + 3*sd_phi_ELA # set threshold value
+
+ELA_loci_ thresh <- sum(ifelse(ELA_loci$phi>=thresh_phi_ELA, 1, 0), na.rm = TRUE) #set number of loci selected to be used as sample size
+
+mapping <- c("SCAF_1"=1, "SCAF_2"=2, "SCAF_3"=3, "SCAF_4"=4, "SCAF_5"=5, "SCAF_6"=6, "SCAF_7"=7, "SCAF_8"=8, "SCAF_9"=9, "SCAF_10"=10, "SCAF_11"=11, "SCAF_12"=12, "SCAF_13"=13, "SCAF_14"=14, "SCAF_15"=15, "SCAF_16"=16, "SCAF_17"=17, "SCAF_18"=18, "SCAF_19"=19, "SCAF_20"=20, "SCAF_21"=21, "SCAF_22"=22, "SCAF_23"=23, "SCAF_24"=24, "SCAF_25"=25, "SCAF_26"=26, "SCAF_27"=27, "SCAF_28"=28, "SCAF_29"=29, "SCAF_30"=30, "SCAF_31"=31, "SCAF_32"=32, "SCAF_33"=33, "SCAF_34"=34, "SCAF_35"=35, "SCAF_36"=36, "SCAF_37"=37, "SCAF_38"=38, "SCAF_39"=39, "SCAF_40"=40, "SCAF_41"=41, "SCAF_42"=42, "SCAF_43"=43, "SCAF_44"=44, "SCAF_45"=45, "SCAF_46"=46, "SCAF_47"=47, "SCAF_48"=48, "SCAF_49"=49, "SCAF_50"=50, "SCAF_51"=51, "SCAF_52"=52, "SCAF_53"=53, "SCAF_54"=54, "SCAF_55"=55, "SCAF_56"=56, "SCAF_57"=57, "SCAF_58"=58, "SCAF_59"=59, "SCAF_60"=60, "SCAF_61"=61, "SCAF_62"=62, "SCAF_63"=63, "SCAF_64"=64, "SCAF_65"=65, "SCAF_66"=66, "SCAF_67"=67, "SCAF_68"=68, "SCAF_69"=69, "SCAF_70"=70, "SCAF_71"=71, "SCAF_72"=72, "SCAF_73"=73, "SCAF_74"=74, "SCAF_75"=75, "SCAF_76"=76, "SCAF_77"=77, "SCAF_78"=78, "SCAF_79"=79, "SCAF_80"=80, "SCAF_81"=81, "SCAF_82"=82, "SCAF_83"=83, "SCAF_84"=84, "SCAF_85"=85, "SCAF_86"=86, "SCAF_87"=87, "SCAF_88"=88, "SCAF_89"=89, "SCAF_90"=90, "SCAF_91"=91, "SCAF_92"=92, "SCAF_93"=93, "SCAF_94"=94, "SCAF_95"=95, "SCAF_96"=96, "SCAF_97"=97, "SCAF_98"=98, "SCAF_99"=99, "SCAF_100"=100, "SCAF_101"=101, "SCAF_102"=102, "SCAF_103"=103, "SCAF_104"=104, "SCAF_105"=105, "SCAF_106"=106, "SCAF_107"=107, "SCAF_108"=108, "SCAF_109"=109, "SCAF_110"=110, "SCAF_111"=111, "SCAF_112"=112, "SCAF_113"=113, "SCAF_114"=114, "SCAF_115"=115, "SCAF_116"=116, "SCAF_117"=117, "SCAF_118"=118, "SCAF_119"=119, "SCAF_120"=120, "SCAF_121"=121, "SCAF_122"=122, "SCAF_123"=123, "SCAF_124"=124, "SCAF_125"=125, "SCAF_126"=126, "SCAF_127"=127, "SCAF_128"=128, "SCAF_129"=129, "SCAF_130"=130, "SCAF_131"=131, "SCAF_132"=132, "SCAF_133"=133, "SCAF_134"=134, "SCAF_135"=135, "SCAF_136"=136, "SCAF_137"=137, "SCAF_138"=138, "SCAF_139"=139, "SCAF_140"=140, "SCAF_141"=141, "SCAF_142"=142, "SCAF_143"=143, "SCAF_144"=144, "SCAF_145"=145, "SCAF_146"=146, "SCAF_147"=147, "SCAF_148"=148, "SCAF_149"=149, "SCAF_150"=150, "SCAF_151"=151, "SCAF_152"=152) #map scaffolds to numeric values
+
+ELA_loci <- mutate(ELA_loci, SCAF_NUM=mapping[ELA_loci$SCAF]) # map loci as numeric variable
+
+ELA_loci$BP <- as.numeric(ELA_loci$BP) #Convert BP to numeric variable
+
+ELA_loci <- mutate(ELA_loci, BAR= (1000000000 * ELA_loci$SCAF_NUM + ELA_loci$BP)) #create barcode (SCAF*1bil + BP)
+
+##PVA##
+
+path_to_file_PVA <- "/Users/ericwitte/Desktop/ELA_Project/ELA_3_21/ELA_3_21_ALL_LOCI/PVA_populations.phistats.tsv" #set path to file
+
+PVA_loci <- read.table(file = path_to_file_PVA, sep = '\t', header = FALSE) #read tsv file
+
+head(PVA_loci) #check file
+
+PVA_loci <- PVA_loci[,1:4] #remove columns 5:12
+
+colnames(PVA_loci) <- c("RAD", "SCAF", "BP", "phi") #rename variables
+
+head(PVA_loci) #check file
+
+min(PVA_loci$phi, na.rm=TRUE) #ensure minimum phi value is set to zero
+
+PVA_loci$phi <- ifelse(PVA_loci$phi<=0, 0, PVA_loci$phi) #set values less than 0 to 0.
+
+mean_phi_PVA <- mean(PVA_loci$phi, na.rm=TRUE) # calculate mean phi value
+
+sd_phi_PVA <- sd(PVA_loci$phi, na.rm=TRUE) # calculate sd phi value
+
+thresh_phi_PVA <- mean_phi_PVA + 3*sd_phi_PVA # set threshold value
+
+PVA_loci_thresh <- sum(ifelse(PVA_loci$phi>=thresh_phi_PVA, 1, 0), na.rm = TRUE) #set number of loci selected to be used as sample size
+
+mapping <- c("SCAF_1"=1, "SCAF_2"=2, "SCAF_3"=3, "SCAF_4"=4, "SCAF_5"=5, "SCAF_6"=6, "SCAF_7"=7, "SCAF_8"=8, "SCAF_9"=9, "SCAF_10"=10, "SCAF_11"=11, "SCAF_12"=12, "SCAF_13"=13, "SCAF_14"=14, "SCAF_15"=15, "SCAF_16"=16, "SCAF_17"=17, "SCAF_18"=18, "SCAF_19"=19, "SCAF_20"=20, "SCAF_21"=21, "SCAF_22"=22, "SCAF_23"=23, "SCAF_24"=24, "SCAF_25"=25, "SCAF_26"=26, "SCAF_27"=27, "SCAF_28"=28, "SCAF_29"=29, "SCAF_30"=30, "SCAF_31"=31, "SCAF_32"=32, "SCAF_33"=33, "SCAF_34"=34, "SCAF_35"=35, "SCAF_36"=36, "SCAF_37"=37, "SCAF_38"=38, "SCAF_39"=39, "SCAF_40"=40, "SCAF_41"=41, "SCAF_42"=42, "SCAF_43"=43, "SCAF_44"=44, "SCAF_45"=45, "SCAF_46"=46, "SCAF_47"=47, "SCAF_48"=48, "SCAF_49"=49, "SCAF_50"=50, "SCAF_51"=51, "SCAF_52"=52, "SCAF_53"=53, "SCAF_54"=54, "SCAF_55"=55, "SCAF_56"=56, "SCAF_57"=57, "SCAF_58"=58, "SCAF_59"=59, "SCAF_60"=60, "SCAF_61"=61, "SCAF_62"=62, "SCAF_63"=63, "SCAF_64"=64, "SCAF_65"=65, "SCAF_66"=66, "SCAF_67"=67, "SCAF_68"=68, "SCAF_69"=69, "SCAF_70"=70, "SCAF_71"=71, "SCAF_72"=72, "SCAF_73"=73, "SCAF_74"=74, "SCAF_75"=75, "SCAF_76"=76, "SCAF_77"=77, "SCAF_78"=78, "SCAF_79"=79, "SCAF_80"=80, "SCAF_81"=81, "SCAF_82"=82, "SCAF_83"=83, "SCAF_84"=84, "SCAF_85"=85, "SCAF_86"=86, "SCAF_87"=87, "SCAF_88"=88, "SCAF_89"=89, "SCAF_90"=90, "SCAF_91"=91, "SCAF_92"=92, "SCAF_93"=93, "SCAF_94"=94, "SCAF_95"=95, "SCAF_96"=96, "SCAF_97"=97, "SCAF_98"=98, "SCAF_99"=99, "SCAF_100"=100, "SCAF_101"=101, "SCAF_102"=102, "SCAF_103"=103, "SCAF_104"=104, "SCAF_105"=105, "SCAF_106"=106, "SCAF_107"=107, "SCAF_108"=108, "SCAF_109"=109, "SCAF_110"=110, "SCAF_111"=111, "SCAF_112"=112, "SCAF_113"=113, "SCAF_114"=114, "SCAF_115"=115, "SCAF_116"=116, "SCAF_117"=117, "SCAF_118"=118, "SCAF_119"=119, "SCAF_120"=120, "SCAF_121"=121, "SCAF_122"=122, "SCAF_123"=123, "SCAF_124"=124, "SCAF_125"=125, "SCAF_126"=126, "SCAF_127"=127, "SCAF_128"=128, "SCAF_129"=129, "SCAF_130"=130, "SCAF_131"=131, "SCAF_132"=132, "SCAF_133"=133, "SCAF_134"=134, "SCAF_135"=135, "SCAF_136"=136, "SCAF_137"=137, "SCAF_138"=138, "SCAF_139"=139, "SCAF_140"=140, "SCAF_141"=141, "SCAF_142"=142, "SCAF_143"=143, "SCAF_144"=144, "SCAF_145"=145, "SCAF_146"=146, "SCAF_147"=147, "SCAF_148"=148, "SCAF_149"=149, "SCAF_150"=150, "SCAF_151"=151, "SCAF_152"=152) #map scaffolds to numeric values
+
+PVA_loci <- mutate(PVA_loci, SCAF_NUM=mapping[PVA_loci$SCAF]) # map loci as numeric variable
+
+PVA_loci$BP <- as.numeric(PVA_loci$BP) #Convert BP to numeric variable
+
+PVA_loci <- mutate(PVA_loci, BAR= (1000000000 * PVA_loci$SCAF_NUM + PVA_loci$BP)) #create barcode (SCAF*1bil + BP)
+
+##Match Probability##
+
+match_thresh <- 0 # how close should loci be to 'match' (smaller is more stringent)
+
+iter <- 10000 #num iterations
+
+PVA_ELA <- data.frame(iteration=1:iter, matches= NA) #create unfilled data frame
+
+for(i in 1:iter){
+
+PVA_df <- data.frame(PVA_BAR=sample(PVA_loci$BAR, PVA_loci_thresh, replace=FALSE), MATCH=NA) #create a PVA df with a sample of BAR values
+
+ELA_df <- data.frame(ELA_BAR=sample(ELA_loci$BAR, ELA_loci_thresh, replace=FALSE), MATCH= NA) #create a ELA df with a sample of BAR values
+
+for(z in 1:PVA_loci_thresh) {
+
+ELA_df$MATCH <- ifelse(abs(PVA_df$PVA_BAR[z]-ELA_df$ELA_BAR)<=match_thresh,1,0)
+
+PVA_df$MATCH[z]<- sum(ELA_df$MATCH)  #total number of matches for a given PVA locus
+
+ELA_df$MATCH<-NA  #clear ELA_df$MATCH variable 
+
+} 
+
+PVA_ELA$matches[i] <- sum(PVA_df$MATCH, na.rm=TRUE) 
+
+rm(PVA_df) 
+
+rm(ELA_df) 
+
+} # Runs iterations of matches-- populates PVA_ELA$matches
+
+##Visualize##
+
+selection_matches <- 4 # how many matches were found (at appropriate match_thresh) between ave+3sd
+
+ave_PVA_ELA <- mean(PVA_ELA$matches)
+stdev_PVA_ELA <- sd(PVA_ELA$matches)
+
+p <- pnorm(selection_matches, ave_PVA_ELA, stdev_PVA_ELA, lower.tail =FALSE) #calculate significance using right tail
+print(p) #print significance
+
+ggplot(PVA_ELA, aes(x=matches)) +geom_histogram(binwidth=1) + geom_vline(aes(xintercept= ave_PVA_ELA), linetype="dashed") + geom_vline(aes(xintercept = selection_matches), colour="green") + (labs(title= "Probability of locus matches between E. lateralis and P. vacca\n p=0.073")) #visualize probability of results UPDATE WITH YOUR OWN p value
+
